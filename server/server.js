@@ -13,6 +13,7 @@ const io = new Server(httpServer, {
   },
 });
 const connectedClients = new Set();
+const rooms = new Map();
 
 io.on('connection', (socket) => {
   console.log('User connected', socket.id);
@@ -21,10 +22,17 @@ io.on('connection', (socket) => {
 
   // socket.emit("msg", "Hello from server"); // send message to client
 
+  // Send client count to all clients when someone connects
+  io.emit('clients-count', connectedClients.size);
+
   socket.on('sendMsg', (data) => {
     console.log(data);
-    // socket.emit('rcvMsg', `${data}`); // send message to individual client
-    io.emit('rcvMsg', `${data}`); // send message to all clients
+    // Send message with sender info
+    io.emit('rcvMsg', {
+      message: data,
+      socketId: socket.id,
+      timestamp: new Date().toISOString(),
+    });
   });
 
   // Join a room
@@ -42,12 +50,18 @@ io.on('connection', (socket) => {
   socket.on('leave-room', (roomName) => {
     socket.leave(roomName);
     console.log(`${socket.id} left ${roomName}`);
+
+    // Let room members know someone left
+    socket.to(roomName).emit('user-left', {
+      message: `${socket.id} left ${roomName}`,
+    });
   });
 
   socket.on('disconnect', () => {
     console.log('User disconnected', socket.id);
     connectedClients.delete(socket.id);
     console.log('Total connected clients:', connectedClients.size);
+    io.emit('clients-count', connectedClients.size);
   });
 });
 
