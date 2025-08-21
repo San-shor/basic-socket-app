@@ -7,7 +7,11 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [isConnected, setIsConnected] = useState(false);
+  const [roomName, setRoomName] = useState('');
+  const [currentRoom, setCurrentRoom] = useState('');
   const socketRef = useRef<Socket | null>(null);
+
+  const [notifications, setNotifications] = useState<string[]>([]);
 
   useEffect(() => {
     socketRef.current = io('http://localhost:5000');
@@ -23,11 +27,6 @@ function App() {
       setIsConnected(false);
     });
 
-    socket.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-      setIsConnected(false);
-    });
-
     socket.on('rcvMsg', (data) => {
       console.log('Received message:', data);
 
@@ -36,11 +35,24 @@ function App() {
       elementRef.current?.appendChild(msg);
     });
 
+    socket.on('user-joined', (data) => {
+      console.log('User joined:', data);
+      setNotifications((prev) => [...prev, data]);
+    });
+
     // Cleanup on unmount
     return () => {
       socket.disconnect();
     };
   }, []);
+
+  // Join room function
+  const joinRoom = () => {
+    if (roomName.trim() && socketRef.current) {
+      socketRef.current.emit('join-room', roomName.trim());
+      setCurrentRoom(roomName.trim());
+    }
+  };
 
   // send message to server
   const messageSend = () => {
@@ -106,6 +118,61 @@ function App() {
             }}></div>
           {isConnected ? 'Connected' : 'Disconnected'}
         </div>
+      </div>
+
+      {/* Room Join Section */}
+      <div
+        style={{
+          marginBottom: '20px',
+          padding: '15px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+        }}>
+        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>Join Room</h3>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <input
+            type='text'
+            value={roomName}
+            onChange={(e) => setRoomName(e.target.value)}
+            placeholder='Enter room name'
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              border: '1px solid #e9ecef',
+              borderRadius: '6px',
+              fontSize: '14px',
+            }}
+            onKeyDown={(e) => e.key === 'Enter' && joinRoom()}
+          />
+          <button
+            onClick={joinRoom}
+            disabled={!roomName.trim() || !isConnected}
+            style={{
+              padding: '8px 16px',
+              backgroundColor:
+                isConnected && roomName.trim() ? '#007bff' : '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor:
+                isConnected && roomName.trim() ? 'pointer' : 'not-allowed',
+              fontSize: '14px',
+            }}>
+            Join Room
+          </button>
+        </div>
+        {currentRoom && (
+          <p style={{ margin: '10px 0 0 0', color: '#666', fontSize: '14px' }}>
+            Currently in room: <strong>{currentRoom}</strong>
+          </p>
+        )}
+        {notifications.map((notification, index) => (
+          <p
+            key={index}
+            style={{ margin: '10px 0 0 0', color: '#666', fontSize: '14px' }}>
+            {notification}
+          </p>
+        ))}
       </div>
 
       {/* Messages Area */}
@@ -204,20 +271,6 @@ function App() {
             <polygon points='22,2 15,22 11,13 2,9'></polygon>
           </svg>
         </button>
-      </div>
-
-      {/* Footer Hint */}
-      <div
-        style={{
-          marginTop: '15px',
-          textAlign: 'center',
-          fontSize: '14px',
-          color: '#6c757d',
-          fontStyle: 'italic',
-        }}>
-        {isConnected
-          ? 'Press Enter to send • Real-time messaging active'
-          : 'Connecting to server...'}
       </div>
 
       <style>{`

@@ -27,6 +27,23 @@ io.on('connection', (socket) => {
     io.emit('rcvMsg', `${data}`); // send message to all clients
   });
 
+  // Join a room
+  socket.on('join-room', (roomName) => {
+    socket.join(roomName);
+    console.log(`${socket.id} join ${roomName}`);
+
+    //let know which room user joined
+    socket
+      .to(roomName)
+      .emit('user-joined', { message: `${socket.id} joined ${roomName}` });
+  });
+
+  //leave a room
+  socket.on('leave-room', (roomName) => {
+    socket.leave(roomName);
+    console.log(`${socket.id} left ${roomName}`);
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected', socket.id);
     connectedClients.delete(socket.id);
