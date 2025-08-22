@@ -13,7 +13,8 @@ const io = new Server(httpServer, {
   },
 });
 const connectedClients = new Set();
-const rooms = new Map();
+
+const userRooms = new Map(); // Track which room each user is in
 
 io.on('connection', (socket) => {
   console.log('User connected', socket.id);
@@ -26,29 +27,54 @@ io.on('connection', (socket) => {
   io.emit('clients-count', connectedClients.size);
 
   socket.on('sendMsg', (data) => {
-    console.log(data);
-    // Send message with sender info
-    io.emit('rcvMsg', {
+    console.log('Message from', socket.id, ':', data);
+
+    const messageData = {
       message: data,
       socketId: socket.id,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    // Check if user is in a room
+    const userRoom = userRooms.get(socket.id);
+
+    if (userRoom) {
+      // Send message only to users in the same room
+      console.log(`Sending message to room: ${userRoom}`);
+      io.to(userRoom).emit('rcvMsg', messageData);
+    } else {
+      // Send message globally if not in any room (global chat)
+      console.log('Sending message globally (no room)');
+      io.emit('rcvMsg', messageData);
+    }
   });
 
   // Join a room
   socket.on('join-room', (roomName) => {
-    socket.join(roomName);
-    console.log(`${socket.id} join ${roomName}`);
+    // Leave previous room if in one
+    const previousRoom = userRooms.get(socket.id);
+    if (previousRoom) {
+      socket.leave(previousRoom);
+      socket.to(previousRoom).emit('user-left', {
+        message: `${socket.id} left ${previousRoom}`,
+      });
+    }
 
-    //let know which room user joined
-    socket
-      .to(roomName)
-      .emit('user-joined', { message: `${socket.id} joined ${roomName}` });
+    // Join new room
+    socket.join(roomName);
+    userRooms.set(socket.id, roomName); // Track user's current room
+    console.log(`${socket.id} joined ${roomName}`);
+
+    // Let room members know someone joined
+    io.to(roomName).emit('user-joined', {
+      message: `${socket.id} joined ${roomName}`,
+    });
   });
 
-  //leave a room
+  // Leave a room
   socket.on('leave-room', (roomName) => {
     socket.leave(roomName);
+    userRooms.delete(socket.id); // Remove user from room tracking
     console.log(`${socket.id} left ${roomName}`);
 
     // Let room members know someone left
@@ -59,6 +85,17 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('User disconnected', socket.id);
+
+    // Clean up user data
+    const userRoom = userRooms.get(socket.id);
+    if (userRoom) {
+      // Notify room members that user left
+      socket.to(userRoom).emit('user-left', {
+        message: `${socket.id} left ${userRoom}`,
+      });
+      userRooms.delete(socket.id);
+    }
+
     connectedClients.delete(socket.id);
     console.log('Total connected clients:', connectedClients.size);
     io.emit('clients-count', connectedClients.size);
