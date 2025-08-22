@@ -65,22 +65,33 @@ io.on('connection', (socket) => {
     userRooms.set(socket.id, roomName); // Track user's current room
     console.log(`${socket.id} joined ${roomName}`);
 
-    // Let room members know someone joined
-    io.to(roomName).emit('user-joined', {
+    // Send different messages to the user who joined vs others in the room
+    // Message to the user who just joined
+    socket.emit('user-joined', {
+      message: `You joined ${roomName}`,
+    });
+
+    // Message to other users in the room (excluding the user who just joined)
+    socket.to(roomName).emit('user-joined', {
       message: `${socket.id} joined ${roomName}`,
     });
   });
 
   // Leave a room
   socket.on('leave-room', (roomName) => {
-    socket.leave(roomName);
-    userRooms.delete(socket.id); // Remove user from room tracking
-    console.log(`${socket.id} left ${roomName}`);
+    // Send message to user who is leaving
+    socket.emit('user-left', {
+      message: `You left ${roomName}`,
+    });
 
-    // Let room members know someone left
+    // Send message to other room members before leaving
     socket.to(roomName).emit('user-left', {
       message: `${socket.id} left ${roomName}`,
     });
+
+    socket.leave(roomName);
+    userRooms.delete(socket.id); // Remove user from room tracking
+    console.log(`${socket.id} left ${roomName}`);
   });
 
   socket.on('disconnect', () => {
