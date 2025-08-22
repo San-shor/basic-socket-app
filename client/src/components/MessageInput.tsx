@@ -27,7 +27,7 @@ export default function MessageInput({
   };
 
   return (
-    <div className='flex gap-3 items-center p-4 bg-white rounded-lg border border-gray-200 shadow-sm'>
+    <div className='flex gap-2 items-center p-4 border-t border-gray-200 bg-white'>
       <input
         type='text'
         value={inputValue}
@@ -35,27 +35,15 @@ export default function MessageInput({
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         disabled={!isConnected}
-        placeholder={
-          isConnected ? 'Type your message...' : 'Connect to start chatting...'
-        }
-        className='flex-1 p-3 border border-gray-200 rounded-lg text-base outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500'
+        placeholder={isConnected ? 'Type a message...' : 'Offline'}
+        className='flex-1 px-3 py-2 border border-gray-200 rounded text-sm outline-none focus:border-gray-400 disabled:bg-gray-50 disabled:text-gray-400'
       />
       <button
         type='button'
         onClick={handleSendMessage}
         disabled={!isConnected || !inputValue.trim()}
-        className='px-6 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2'>
-        <span>Send</span>
-        <svg
-          width='16'
-          height='16'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'>
-          <line x1='22' y1='2' x2='11' y2='13'></line>
-          <polygon points='22,2 15,22 11,13 2,9'></polygon>
-        </svg>
+        className='px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'>
+        Send
       </button>
     </div>
   );

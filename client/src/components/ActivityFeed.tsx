@@ -6,35 +6,32 @@ interface ActivityFeedProps {
 
 export default function ActivityFeed({ notifications }: ActivityFeedProps) {
   return (
-    <div className='mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200'>
-      <h3 className='mb-3 text-lg font-semibold text-gray-800 flex items-center gap-2'>
-        <span className='text-xl'>🔔</span>
-        Activity Feed
-      </h3>
-      <div className='space-y-2 max-h-60 overflow-y-auto'>
+    <div className='mb-6'>
+      <div className='text-sm font-medium text-gray-700 mb-3'>Activity</div>
+      <div className='space-y-1 max-h-48 overflow-y-auto'>
         {notifications.length === 0 ? (
-          <p className='text-gray-500 text-sm text-center py-4'>
-            No activity yet...
-          </p>
+          <p className='text-gray-400 text-xs py-2'>No activity</p>
         ) : (
           notifications
             .slice(-5)
             .reverse()
             .map((notification) => (
-              <div
-                key={notification.id}
-                className={`p-3 rounded-lg text-sm ${
-                  notification.type === 'join'
-                    ? 'bg-green-100 text-green-800 border border-green-300'
-                    : 'bg-red-100 text-red-800 border border-red-300'
-                }`}>
-                <div className='flex items-center gap-2'>
-                  <span>{notification.type === 'join' ? '➡️' : '⬅️'}</span>
-                  <span className='flex-1'>{notification.message}</span>
-                </div>
-                <div className='text-xs opacity-75 mt-1'>
-                  {notification.timestamp.toLocaleTimeString()}
-                </div>
+              <div key={notification.id} className='text-xs text-gray-500 py-1'>
+                <span
+                  className={
+                    notification.type === 'join'
+                      ? 'text-green-600'
+                      : 'text-red-600'
+                  }>
+                  {notification.type === 'join' ? '→' : '←'}
+                </span>
+                <span className='ml-2'>{notification.message}</span>
+                <span className='ml-2 text-gray-400'>
+                  {notification.timestamp.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
               </div>
             ))
         )}

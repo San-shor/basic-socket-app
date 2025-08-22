@@ -116,22 +116,19 @@ function App() {
   };
 
   return (
-    <div className='max-w-4xl mx-auto p-6 bg-white min-h-screen'>
+    <div className='max-w-5xl mx-auto bg-white min-h-screen'>
       {/* Header */}
-      <div className='flex justify-between items-center mb-6 pb-4 border-b-2 border-blue-100'>
-        <h1 className='m-0 text-3xl font-bold text-gray-800 flex items-center gap-3'>
-          <span className='text-4xl'>💬</span>
-          Real-time Chat
-        </h1>
+      <div className='flex justify-between items-center px-6 py-4 border-b border-gray-200'>
+        <h1 className='text-xl font-semibold text-gray-900'>Chat</h1>
         <ConnectionStatus
           isConnected={isConnected}
           connectedClients={connectedClients}
         />
       </div>
 
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-        {/* Left Side - Room & Notifications */}
-        <div className='lg:col-span-1'>
+      <div className='flex h-[calc(100vh-73px)]'>
+        {/* Sidebar */}
+        <div className='w-64 border-r border-gray-200 bg-gray-50 p-4'>
           <RoomControl
             currentRoom={currentRoom}
             isConnected={isConnected}
@@ -141,22 +138,12 @@ function App() {
           <ActivityFeed notifications={notifications} />
         </div>
 
-        {/* Right Side - Chat */}
-        <div className='lg:col-span-2'>
+        {/* Chat Area */}
+        <div className='flex-1 flex flex-col'>
           <ChatArea messages={messages} currentRoom={currentRoom} />
           <MessageInput isConnected={isConnected} onSendMessage={messageSend} />
         </div>
       </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .animate-pulse {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-      `}</style>
     </div>
   );
 }

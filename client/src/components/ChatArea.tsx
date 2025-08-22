@@ -17,21 +17,17 @@ export default function ChatArea({ messages, currentRoom }: ChatAreaProps) {
   }, [messages]);
 
   return (
-    <div className='mb-4 border border-gray-200 rounded-lg bg-white shadow-sm'>
-      <div className='p-4 bg-gray-50 border-b border-gray-200 rounded-t-lg'>
-        <h3 className='m-0 text-lg font-semibold text-gray-800 flex items-center gap-2'>
-          <span className='text-xl'>💭</span>
-          {currentRoom ? `Chat - ${currentRoom}` : 'Global Chat'}
-        </h3>
+    <div className='flex-1 border-b border-gray-200 bg-white'>
+      <div className='px-4 py-3 border-b border-gray-100'>
+        <div className='text-sm font-medium text-gray-700'>
+          {currentRoom ? currentRoom : 'Global'}
+        </div>
       </div>
 
-      <div className='p-4 h-96 overflow-y-auto bg-gray-50'>
+      <div className='p-4 h-96 overflow-y-auto'>
         {messages.length === 0 ? (
           <div className='flex items-center justify-center h-full'>
-            <p className='text-gray-500 text-center'>
-              <span className='text-4xl mb-2 block'>📭</span>
-              No messages yet... Start a conversation!
-            </p>
+            <p className='text-gray-400 text-sm text-center'>No messages yet</p>
           </div>
         ) : (
           <div className='space-y-3'>
@@ -42,18 +38,22 @@ export default function ChatArea({ messages, currentRoom }: ChatAreaProps) {
                   message.isOwnMessage ? 'justify-end' : 'justify-start'
                 }`}>
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
+                  className={`max-w-xs lg:max-w-md px-3 py-2 rounded text-sm ${
                     message.isOwnMessage
-                      ? 'bg-blue-500 text-white rounded-br-sm'
-                      : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-900'
                   }`}>
-                  <div className='text-sm font-medium'>{message.text}</div>
+                  <div className='mb-1'>{message.text}</div>
                   <div
-                    className={`text-xs mt-1 ${
-                      message.isOwnMessage ? 'text-blue-100' : 'text-gray-500'
+                    className={`text-xs ${
+                      message.isOwnMessage ? 'text-gray-300' : 'text-gray-500'
                     }`}>
                     {message.isOwnMessage ? 'You' : message.socketId.slice(-6)}{' '}
-                    • {message.timestamp.toLocaleTimeString()}
+                    •{' '}
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </div>
                 </div>
               </div>

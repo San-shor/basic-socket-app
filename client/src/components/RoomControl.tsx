@@ -23,40 +23,36 @@ export default function RoomControl({
   };
 
   return (
-    <div className='mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200'>
-      <h3 className='mb-3 text-lg font-semibold text-gray-800 flex items-center gap-2'>
-        <span className='text-xl'>🏠</span>
-        Create a room
-      </h3>
+    <div className='mb-6'>
+      <div className='text-sm font-medium text-gray-700 mb-3'>Room</div>
 
       {!currentRoom ? (
-        <div className='space-y-3'>
+        <div className='space-y-2'>
           <input
             type='text'
             value={roomName}
             onChange={(e) => setRoomName(e.target.value)}
-            placeholder='Enter room name...'
-            className='w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none'
+            placeholder='Room name'
+            className='w-full px-3 py-2 border border-gray-200 rounded text-sm focus:outline-none focus:border-gray-400'
             onKeyDown={(e) => e.key === 'Enter' && handleJoinRoom()}
           />
           <button
             onClick={handleJoinRoom}
             disabled={!roomName.trim() || !isConnected}
-            className='w-full px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors'>
-            🚪 Join Room
+            className='w-full px-3 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors'>
+            Join
           </button>
         </div>
       ) : (
-        <div className='space-y-3'>
-          <div className='p-3 bg-green-100 rounded-lg border border-green-300'>
-            <p className='m-0 text-green-800 text-sm font-medium'>
-              📍 Currently in: <strong>{currentRoom}</strong>
-            </p>
+        <div className='space-y-2'>
+          <div className='px-3 py-2 bg-gray-50 rounded text-sm'>
+            <span className='text-gray-600'>In:</span>{' '}
+            <span className='font-medium'>{currentRoom}</span>
           </div>
           <button
             onClick={onLeaveRoom}
-            className='w-full px-4 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors'>
-            🚪 Leave Room
+            className='w-full px-3 py-2 border border-gray-200 text-gray-700 text-sm rounded hover:bg-gray-50 transition-colors'>
+            Leave
           </button>
         </div>
       )}
