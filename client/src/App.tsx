@@ -62,6 +62,7 @@ function App() {
         type: 'join',
       };
       setNotifications((prev) => [...prev, notification]);
+      setMessages([]);
     });
     socket.on('user-left', (data) => {
       console.log('User left:', data);
@@ -72,6 +73,7 @@ function App() {
         type: 'leave',
       };
       setNotifications((prev) => [...prev, notification]);
+      setMessages([]);
     });
     socket.on('clients-count', (count) => {
       setConnectedClients(count);
